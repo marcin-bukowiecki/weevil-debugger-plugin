@@ -1,0 +1,26 @@
+{
+    parserClass="com.bukowiecki.weevil.recursion.parser.RecursionParser"
+
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+    psiClassPrefix="Recursion"
+    psiImplClassSuffix="Impl"
+    psiPackage="com.bukowiecki.weevil.recursion.language.psi"
+    psiImplPackage="com.bukowiecki.weevil.recursion.language.psi.impl"
+
+    elementTypeHolderClass="com.bukowiecki.weevil.recursion.language.psi.RecursionTypes"
+    elementTypeClass="com.bukowiecki.weevil.recursion.language.psi.RecursionElementType"
+    tokenTypeClass="com.bukowiecki.weevil.recursion.language.psi.RecursionTokenType"
+}
+
+root ::= expression?
+expression ::= singleExpr (COMMA singleExpr)*
+singleExpr ::= rangeExpr | underExpr | aboveExpr | numberExpr
+
+rangeExpr ::= leftNumber MINUS rightNumber
+underExpr ::= leftNumber MINUS
+aboveExpr ::= leftNumber PLUS
+numberExpr ::= NUMBER
+
+leftNumber ::= NUMBER
+rightNumber ::= NUMBER

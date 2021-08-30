@@ -1,0 +1,144 @@
+<idea-plugin>
+    <id>com.bukowiecki.weevil</id>
+    <name>Weevil Debugger</name>
+    <vendor email="m.bukowiecki0407@gmail.com" url="https://github.com/marcin-bukowiecki">Marcin Bukowiecki</vendor>
+
+    <description><![CDATA[
+    Weevil Debugger plugin is an extension to existing Intellij Java Debugger providing out-of-the-box features:
+
+    <ul>
+        <li>Debugger Shell with evaluation history and value inspection</li>
+        <li>Automatic closing files which aren't reachable from stack frames during Debug</li>
+        <li>Search for Debugger Variables</li>
+        <li>Evaluate future code</li>
+        <li>Recursion breakpoint</li>
+        <li>Smart breakpoint setup according to current value</li>
+        <li>Show source code path of loaded class</li>
+        <li>Show method return values</li>
+        <li>Highlighting boolean operators</li>
+        <li>Highlighting selected expression</li>
+        <li>Variable change history</li>
+    </ul>
+
+    To see more information please visit: <a href="https://github.com/marcin-bukowiecki/weevil-debugger-plugin">Weevil Debugger</a>
+
+    ]]></description>
+
+    <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.all</depends>
+    <depends>com.intellij.java</depends>
+
+    <!-- <depends optional="true" config-file="com.bukowiecki.breakpoints-withKotlin.xml">org.jetbrains.kotlin</depends>-->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.bukowiecki.weevil.listeners.ProjectOpened"/>
+
+        <projectService serviceImplementation="com.bukowiecki.weevil.services.WeevilResultService"/>
+        <projectService serviceImplementation="com.bukowiecki.weevil.inline.WeevilDebuggerInlayListener"/>
+        <projectService serviceImplementation="com.bukowiecki.weevil.settings.WeevilDebuggerSettings"/>
+        <projectService serviceImplementation="com.bukowiecki.weevil.services.WeevilDebuggerService"/>
+        <projectService serviceImplementation="com.bukowiecki.weevil.services.RecursionBreakpointProperties"/>
+
+        <debugger.sourcePositionProvider
+                implementation="com.bukowiecki.weevil.debugger.engine.WeevilSourcePositionProvider"/>
+
+        <annotator language="JAVA" implementationClass="com.bukowiecki.weevil.annotator.WeevilDebuggerAnnotator"/>
+        <annotator language="JAVA" implementationClass="com.bukowiecki.weevil.annotator.WeevilXDebuggerTreeAnnotator"/>
+
+        <xdebugger.breakpointType
+                implementation="com.bukowiecki.weevil.xdebugger.breakpoints.RecursionLineBreakpointType"/>
+
+        <debugger.javaBreakpointHandlerFactory
+                implementation="com.bukowiecki.weevil.xdebugger.breakpoints.WeevilDebuggerBreakpointHandlerFactory"/>
+
+        <projectConfigurable parentId="tools"
+                             instance="com.bukowiecki.weevil.settings.WeevilDebuggerConfigurable"
+                             id="com.bukowiecki.weevil.settings.WeevilDebuggerConfigurable"
+                             displayName="Weevil Debugger Settings"/>
+
+
+        <lang.parserDefinition language="Weevil-debugger-recursion"
+                               implementationClass="com.bukowiecki.weevil.recursion.parser.RecursionParserDefinition"/>
+
+        <lang.psiAugmentProvider implementation="com.bukowiecki.weevil.search.extension.SearchPsiArgumentProvider"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <!--
+        <action class="com.bukowiecki.weevil.actions.DecodeExpressionAction" description="Decode expression"
+                id="Decode Expression" text="Decode Expression">
+            <add-to-group anchor="last" group-id="EditorPopupMenu"/>
+        </action>
+        -->
+        <action id="WeevilDebugger.ClearCollection" class="com.bukowiecki.weevil.actions.ClearCollectionAction" text="Clear Collection">
+            <add-to-group group-id="XDebugger.Watches.Inline.Popup"/>
+        </action>
+
+        <action id="WeevilDebugger.CleaMapAction" class="com.bukowiecki.weevil.actions.CleaMapAction" text="Clear Map">
+            <add-to-group group-id="XDebugger.Watches.Inline.Popup"/>
+        </action>
+
+        <action id="WeevilDebugger.ShowHistoryAction" class="com.bukowiecki.weevil.actions.ShowHistoryAction"
+                text="Show History/Search">
+            <add-to-group group-id="XDebugger.Watches.Inline.Popup"/>
+            <add-to-group group-id="XDebugger.ValueGroup" anchor="last"/>
+        </action>
+
+        <action id="WeevilDebugger.SearchAction" class="com.bukowiecki.weevil.actions.SearchAction" text="Search">
+            <add-to-group group-id="XDebugger.Watches.Inline.Popup"/>
+            <add-to-group group-id="XDebugger.ValueGroup" anchor="last"/>
+        </action>
+
+        <group id="WeevilDebugger.SetupBreakpointCondition" popup="true" text="Setup Breakpoint Condition">
+            <add-to-group group-id="XDebugger.ValueGroup" anchor="last"/>
+        </group>
+
+        <action id="WeevilDebugger.SetupBreakpointCondition.AtCursor"
+                class="com.bukowiecki.weevil.actions.AtCursorAction"
+                text="At Cursor">
+            <add-to-group group-id="WeevilDebugger.SetupBreakpointCondition"/>
+        </action>
+
+        <action id="WeevilDebugger.SetupBreakpointCondition.AtBreakpoint"
+                class="com.bukowiecki.weevil.actions.AtBreakpoint"
+                text="At Current Breakpoint">
+            <add-to-group group-id="WeevilDebugger.SetupBreakpointCondition"/>
+        </action>
+
+        <action class="com.bukowiecki.weevil.actions.OpenDebugShellAction" description="Open debug shell"
+                id="WeevilDebugger.OpenDebugShell" text="Open Debug Shell" icon="AllIcons.Debugger.Console">
+            <add-to-group anchor="last" group-id="EditorPopupMenu"/>
+        </action>
+
+        <action id="WeevilDebuggerInspectExpression" description="Inspect" text="Inspect"
+                class="com.bukowiecki.weevil.actions.shell.InspectShellExpression"
+                icon="AllIcons.Actions.ToggleSoftWrap">
+            <add-to-group anchor="first" group-id="XDebugger.Evaluate.Code.Fragment.Editor.Popup"/>
+        </action>
+
+        <action id="WeevilDebuggerExecuteExpression" description="Execute" text="Execute"
+                class="com.bukowiecki.weevil.actions.shell.ExecuteShellAction"
+                icon="AllIcons.Actions.Rerun">
+            <add-to-group anchor="first" group-id="XDebugger.Evaluate.Code.Fragment.Editor.Popup"/>
+        </action>
+
+        <action id="WeevilDebuggerClearShell" description="Refresh" text="ClearShell"
+                class="com.bukowiecki.weevil.actions.shell.ClearAction"
+                icon="AllIcons.Diff.Remove">
+            <add-to-group anchor="first" group-id="XDebugger.Evaluate.Code.Fragment.Editor.Popup"/>
+        </action>
+
+        <group id="WeevilDebuggerShellGroup">
+            <action id="WeevilDebugger.Shell.Refresh"
+                    class="com.bukowiecki.weevil.actions.shell.RefreshAction"
+                    text="Shell Refresh"
+                    icon="AllIcons.Actions.Rerun"
+                    description="Refresh"/>
+            <reference ref="WeevilDebuggerExecuteExpression"/>
+            <reference ref="WeevilDebuggerInspectExpression"/>
+        </group>
+    </actions>
+</idea-plugin>

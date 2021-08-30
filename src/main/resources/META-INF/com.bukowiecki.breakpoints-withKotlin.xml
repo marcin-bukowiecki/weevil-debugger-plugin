@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.bukowiecki.weevil.listeners.dependencies.KotlinDependencyLoader"/>
+    </extensions>
+</idea-plugin>
