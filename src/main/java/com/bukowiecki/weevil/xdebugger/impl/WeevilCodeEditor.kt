@@ -87,7 +87,7 @@ open class WeevilCodeEditor(
     }
 
     fun addComponent(contentPanel: JPanel, resultPanel: JPanel?, vertical: Boolean = true) {
-        val splitter = JBSplitter(vertical, 0.3f, 0.2f, 0.7f)
+        val splitter = JBSplitter(vertical, 0.7f, 0.2f, 0.7f)
         splitter.splitterProportionKey = getDimensionServiceKey() + ".splitter"
         contentPanel.add(splitter, BorderLayout.CENTER)
         splitter.firstComponent = myPanel
@@ -156,9 +156,8 @@ open class WeevilCodeEditor(
         return myEditorTextField
     }
 
-    @Suppress("UnstableApiUsage")
     override fun doSetText(text: XExpression) {
-        ApplicationManager.getApplication().invokeLaterOnWriteThread {
+        ApplicationManager.getApplication().runWriteAction {
             myEditorTextField.setNewDocumentAndFileType(getFileType(text), createDocument(text))
         }
     }

@@ -129,8 +129,8 @@ class SessionController(
                                 ) {
                                     myMessageBus.syncPublisher(myWeevilDebuggerService.topic).futureEvaluated()
                                     myEvalState = EvalState(weevilContext, evalContext)
-                                    showTree()
                                     populateThreadList()
+                                    showTree()
                                 }
                             }
                         )
@@ -241,24 +241,33 @@ class SessionController(
 
         val weevilContext = currentState.weevilContext
         val threadsResult = weevilContext.threadsResult
+        val evalContext = currentState.evalContext
 
         val currentDebugProcess = JavaDebugProcess.getCurrentDebugProcess(myProject) ?: return
         val virtualMachineProxy = currentDebugProcess.virtualMachineProxy
         val tabView = myViewRef.get() ?: return
+
+        val currentThreadId = currentState.evalContext.suspendContext.thread?.let {
+            WeevilDebuggerUtils.getThreadId(it.threadReference, evalContext)
+        } ?: -1
 
         threadsResult.forEach { threadResult ->
             val threadReferenceProxyImpl = ThreadReferenceProxyImpl(virtualMachineProxy, threadResult.threadReference)
             val name = threadResult.threadReference.name()
             val current = name == "main"
 
-            tabView.evaluateView.myThreadComboBox.addItem(
-                WeevilJavaExecutionStack(
-                    threadReferenceProxyImpl,
-                    currentDebugProcess,
-                    current,
-                    threadResult.threadId
-                )
+            val weevilJavaExecutionStack = WeevilJavaExecutionStack(
+                threadReferenceProxyImpl,
+                currentDebugProcess,
+                current,
+                threadResult.threadId
             )
+
+            tabView.evaluateView.myThreadComboBox.addItem(weevilJavaExecutionStack)
+
+            if (threadResult.threadId == currentThreadId) {
+                currentState.selectedExecutionStack = WeakReference(weevilJavaExecutionStack)
+            }
         }
     }
 
@@ -331,7 +340,8 @@ class SessionController(
 data class EvalState(
     val weevilContext: WeevilEvaluateContext,
     val evalContext: EvaluationContextImpl,
-    val selectedExecutionStack: WeakReference<WeevilJavaExecutionStack> = WeakReference(null)
+
+    var selectedExecutionStack: WeakReference<WeevilJavaExecutionStack> = WeakReference(null)
 )
 
 fun buildImports(otherImports: String): String {

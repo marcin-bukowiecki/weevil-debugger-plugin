@@ -10,6 +10,7 @@ import com.bukowiecki.weevil.search.FieldSearchPath
 import com.bukowiecki.weevil.search.SearchContext
 import com.bukowiecki.weevil.search.SearchPath
 import com.bukowiecki.weevil.utils.WeevilDebuggerUtils
+import com.intellij.openapi.diagnostic.Logger
 import com.sun.jdi.ObjectReference
 import com.sun.jdi.Value
 
@@ -17,6 +18,8 @@ import com.sun.jdi.Value
  * @author Marcin Bukowiecki
  */
 class ObjectSearch(private val valueSearcher: BaseWeevilSearcher) : SearchProvider {
+
+    private val log = Logger.getInstance(ObjectSearch::class.java)
 
     override fun search(
         value: Value?,
@@ -39,6 +42,8 @@ class ObjectSearch(private val valueSearcher: BaseWeevilSearcher) : SearchProvid
                 return@forEach
             }
             val currentValue = ref.getValue(f)
+            log.info("Checking field: " + f.name())
+
             if (currentValue != null) {
                 valueSearcher.searchSingleValue(
                     currentValue,

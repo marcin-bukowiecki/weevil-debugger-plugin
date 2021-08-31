@@ -8,8 +8,10 @@ package com.bukowiecki.weevil.evaluator
 import com.bukowiecki.weevil.debugger.WeevilEvaluateContext
 import com.bukowiecki.weevil.debugger.ui.EvalRecord
 import com.bukowiecki.weevil.debugger.ui.VariableDescriptorUtils
+import com.bukowiecki.weevil.utils.WeevilDebuggerUtils
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.IdentityEvaluator
+import com.intellij.debugger.engine.evaluation.expression.MethodEvaluator
 import com.intellij.debugger.engine.evaluation.expression.UnBoxingEvaluator
 import com.sun.jdi.*
 
@@ -51,8 +53,11 @@ class EventsResultEvaluator(private val weevilEvaluateContext: WeevilEvaluateCon
         val threadMapResult = mutableListOf<EventsResult>()
         for (entry in threadMapEval.entries) {
             val name = entry.value.name()
-            val uniqueID = entry.value.uniqueID()
-            threadMapResult.add(EventsResult(uniqueID, name, eventCollectorMapResult[uniqueID]!!))
+            val threadId = WeevilDebuggerUtils.getThreadId(entry.value, context)
+
+            eventCollectorMapResult[threadId]?.let { myMap ->
+                threadMapResult.add(EventsResult(threadId, name, myMap))
+            }
         }
 
         return threadMapResult

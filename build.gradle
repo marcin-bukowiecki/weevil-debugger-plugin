@@ -24,7 +24,8 @@ intellij {
     version = '2021.2.1'
     type = 'IC'
     plugins = [
-        'java'
+        'java',
+        'org.jetbrains.kotlin:212-1.5.30-release-409-IJ4638.7'
     ]
 }
 

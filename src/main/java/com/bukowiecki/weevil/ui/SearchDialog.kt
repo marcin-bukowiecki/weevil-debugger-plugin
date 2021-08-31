@@ -33,6 +33,7 @@ import com.intellij.xdebugger.impl.ui.tree.XDebuggerTree
 import com.intellij.xdebugger.impl.ui.tree.XDebuggerTreePanel
 import java.awt.BorderLayout
 import java.awt.Dimension
+import javax.swing.BorderFactory
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -86,6 +87,8 @@ open class SearchDialog(
         myMainPanel.add(mySearchPanel, BorderLayout.NORTH)
 
         historyLabel.icon = AllIcons.Actions.IntentionBulb
+        historyLabel.border = BorderFactory.createEmptyBorder(5, 5, 5, 5)
+
         myHistoryPanel = JBUI.Panels.simplePanel()
             .addToTop(historyLabel)
             .addToCenter(myTreePanel.mainPanel)
