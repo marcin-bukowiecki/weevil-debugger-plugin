@@ -21,6 +21,8 @@ And features dedicated for evaluating future code:
     <li>Variable change history</li>
 </ul>
 
+You can install this plugin from JetBrains <a href="https://plugins.jetbrains.com/plugin/17511-weevil-debugger">marketplace</a>.
+
 ## Requirements
 
 For <code>Search</code> and <code>Evaluate future code</code> features, it is required to have a running JVM 
