@@ -1,6 +1,6 @@
 # Weevil Debugger plugin
 
-Weevil Debugger is an extension to existing Intellij Java Debugger providing out-of-the-box features:
+Weevil Debugger is an extension to existing Intellij Java Debugger providing special features:
 
 <ul>
     <li>Debugger Shell with evaluation history and value inspection</li>
@@ -9,10 +9,15 @@ Weevil Debugger is an extension to existing Intellij Java Debugger providing out
     <li>Evaluate future code</li>    
     <li>Recursion breakpoint</li>
     <li>Smart breakpoint setup according to current value</li>
+    <li>Show source code path of loaded class</li>
+</ul>
+
+And features dedicated for evaluating future code:
+
+<ul>
+    <li>Show method return values</li>
     <li>Highlighting boolean operators</li>
     <li>Highlighting selected expression</li>
-    <li>Show source code path of loaded class</li>
-    <li>Show method return values</li>
     <li>Variable change history</li>
 </ul>
 
@@ -21,7 +26,9 @@ Weevil Debugger is an extension to existing Intellij Java Debugger providing out
 For <code>Search</code> and <code>Evaluate future code</code> features, it is required to have a running JVM 
 with at least Java 8 version.
 
-If your code is stateful using <code>Evaluate future code</code> feature may cause unexpected program behavior.
+## Warning
+
+If your code is stateful, using <code>Evaluate future code</code> feature may cause unexpected program behavior (i.e. closing streams, sessions etc.).
 
 ## Features
 
@@ -86,7 +93,9 @@ To search for desired value just write it in the input and hit <code>Search</cod
 Search result (tree path) will be expanded and highlighted. 
 Be aware that by default search depth is limited to 5 levels of object graph hierarchy. 
 This is required because some JVM objects can hold cyclic references and searching process could take eternity.
-Search depth can be changed in <code>Weevil Debugger Settings</code>.
+Search depth can be changed in <code>Weevil Debugger Settings</code>. 
+
+Searching process can also timeout. By default, it will timeout after 5 seconds. This value can be also changed in the plugin settings.
 
 #### Code Fragment search
 
@@ -100,6 +109,8 @@ In the following example we can see a <code>Code Fragment</code> that will find 
 are starting with <code>J</code>.
 
 ![img.png](./doc/images/search5.png)
+
+Searching process is done in single thread. So if you are searching huge collections it will probably timeout and your desired value may not be found.
 
 ### Evaluate Future Code
 

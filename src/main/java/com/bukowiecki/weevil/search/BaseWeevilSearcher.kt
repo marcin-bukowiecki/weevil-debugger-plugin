@@ -42,6 +42,13 @@ abstract class BaseWeevilSearcher(private val myProject: Project) : WeevilSearch
 
     fun doSearch(searchController: SearchController, searchContext: SearchContext, initialSearchPath: InitialSearchPath) {
         val searchDialog = searchController.searchDialog
+        searchDialog.historyLabel.text = WeevilDebuggerBundle.message(
+            "weevil.debugger.search.timeout.in",
+            WeevilDebuggerSettings.getInstance(myProject).searchTimeout
+        )
+
+        val settings = WeevilDebuggerSettings.getInstance(myProject)
+
         searchController.dispatch {
             try {
                 searchHistory(
@@ -54,7 +61,7 @@ abstract class BaseWeevilSearcher(private val myProject: Project) : WeevilSearch
 
                 if (timedOut) {
                     log.info("Search timeout. Setting label")
-                    searchDialog.historyLabel.text = WeevilDebuggerBundle.message("weevil.debugger.search.timeout")
+                    searchDialog.historyLabel.text = WeevilDebuggerBundle.message("weevil.debugger.search.timeout", settings.searchTimeout.toString())
                 } else {
                     searchDialog.historyLabel.text = WeevilDebuggerBundle.message(
                         "weevil.debugger.search.info",

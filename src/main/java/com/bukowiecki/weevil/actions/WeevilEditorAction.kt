@@ -21,7 +21,7 @@ interface WeevilEditorAction {
         val project = e.project ?: return false
         val psiFile = e.getData(CommonDataKeys.PSI_FILE) ?: return false
 
-        if (!WeevilDebuggerService.getInstance(project).isLanguageSupported(psiFile.language)) {
+        if (!WeevilDebuggerService.getInstance(project).isLanguageSupportedForShell(psiFile.language)) {
             return false
         }
 
@@ -32,6 +32,6 @@ interface WeevilEditorAction {
 
         if (currentSession.topFramePosition != null) return true
 
-        return true
+        return false
     }
 }

@@ -5,7 +5,6 @@
 
 package com.bukowiecki.weevil.listeners.dependencies
 
-import com.bukowiecki.weevil.search.codefragment.KotlinCodeFragmentSearcher
 import com.bukowiecki.weevil.services.WeevilDebuggerService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
@@ -19,8 +18,6 @@ class KotlinDependencyLoader : StartupActivity {
     @Suppress("UnstableApiUsage")
     override fun runActivity(project: Project) {
         val weevilDebuggerService = WeevilDebuggerService.getInstance(project)
-        weevilDebuggerService.addSupportedLanguage(KotlinLanguage.INSTANCE)
-
-        weevilDebuggerService.addSearcher(KotlinLanguage.INSTANCE) { KotlinCodeFragmentSearcher(project) }
+        weevilDebuggerService.addShellSupportedLanguage(KotlinLanguage.INSTANCE)
     }
 }

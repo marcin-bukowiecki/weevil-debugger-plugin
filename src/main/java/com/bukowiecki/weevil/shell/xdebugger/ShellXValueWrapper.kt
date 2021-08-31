@@ -7,86 +7,85 @@ package com.bukowiecki.weevil.shell.xdebugger
 
 import com.intellij.debugger.engine.JavaValue
 import com.intellij.debugger.ui.impl.DebuggerTreeRenderer
+import com.intellij.icons.AllIcons
 import com.intellij.util.ThreeState
 import com.intellij.xdebugger.XExpression
 import com.intellij.xdebugger.evaluation.XInstanceEvaluator
 import com.intellij.xdebugger.frame.*
+import com.intellij.xdebugger.frame.presentation.XStringValuePresentation
+import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import org.jetbrains.concurrency.Promise
+import org.jetbrains.concurrency.resolvedPromise
+import java.lang.ref.WeakReference
 import javax.swing.Icon
 
 /**
  * @author Marcin Bukowiecki
  */
-@Suppress("unused")
-class ShellXValueWrapper(private val wrapped: JavaValue) : XValue() {
-
-    @Volatile
-    private var wasComputed = false
-
-    @Volatile
-    private var refreshRequired = false
+class ShellXValueWrapper(private val xValueRef: WeakReference<JavaValue>,
+                         private val evaluationExpression: String) : XValue() {
 
     override fun computePresentation(node: XValueNode, place: XValuePlace) {
-        if (wasComputed) {
-            node.setPresentation(getIcon(), JavaValue.createPresentation(wrapped.descriptor), wrapped.descriptor.isExpandable)
-            refreshRequired = true
-            return
+        val xValue = xValueRef.get()
+
+        if (xValue == null) {
+            node.setPresentation(getIcon(), XStringValuePresentation("Unreachable"), false)
+        } else {
+            xValue.computePresentation(node, place)
         }
-        wrapped.computePresentation(node, place)
-        wasComputed = true
     }
 
     override fun computeChildren(node: XCompositeNode) {
-        if (refreshRequired) {
-            refreshRequired = false
-        }
-        wrapped.computeChildren(node)
+        val xValue = xValueRef.get() ?: return
+
+        xValue.computeChildren(node)
     }
 
-    override fun getEvaluationExpression(): String? {
-        return wrapped.evaluationExpression
+    override fun getEvaluationExpression(): String {
+        return evaluationExpression
     }
 
     override fun calculateEvaluationExpression(): Promise<XExpression> {
-        return wrapped.calculateEvaluationExpression()
+        return resolvedPromise(XExpressionImpl.fromText(evaluationExpression))
     }
 
     override fun getInstanceEvaluator(): XInstanceEvaluator? {
-        return wrapped.instanceEvaluator
+        return xValueRef.get()?.instanceEvaluator
     }
 
     override fun getModifier(): XValueModifier? {
-        return wrapped.modifier
+        return xValueRef.get()?.modifier
     }
 
     override fun computeSourcePosition(navigatable: XNavigatable) {
-        wrapped.computeSourcePosition(navigatable)
+        xValueRef.get()?.computeSourcePosition(navigatable)
     }
 
     override fun computeInlineDebuggerData(callback: XInlineDebuggerDataCallback): ThreeState {
-        return wrapped.computeInlineDebuggerData(callback)
+        return xValueRef.get()?.computeInlineDebuggerData(callback) ?: ThreeState.UNSURE
     }
 
     override fun canNavigateToSource(): Boolean {
-        return wrapped.canNavigateToSource()
+        return xValueRef.get()?.canNavigateToSource() ?: false
     }
 
     override fun canNavigateToTypeSource(): Boolean {
-        return wrapped.canNavigateToTypeSource()
+        return xValueRef.get()?.canNavigateToTypeSource() ?: false
     }
 
     override fun computeTypeSourcePosition(navigatable: XNavigatable) {
-        wrapped.computeTypeSourcePosition(navigatable)
+        xValueRef.get()?.computeTypeSourcePosition(navigatable)
     }
 
     override fun getReferrersProvider(): XReferrersProvider? {
-        return wrapped.referrersProvider
+        return xValueRef.get()?.referrersProvider
     }
 
     private fun getIcon(): Icon {
+        val xValue = xValueRef.get() ?: return AllIcons.Debugger.Value
         return DebuggerTreeRenderer.getValueIcon(
-            wrapped.descriptor,
-            if (wrapped.parent != null) wrapped.parent.descriptor else null
+            xValue.descriptor,
+            if (xValue.parent != null) xValue.parent.descriptor else null
         )
     }
 }

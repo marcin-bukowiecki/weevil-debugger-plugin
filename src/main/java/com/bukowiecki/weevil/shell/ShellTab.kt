@@ -13,6 +13,7 @@ import com.bukowiecki.weevil.debugger.engine.WeevilErrorTreeNode
 import com.bukowiecki.weevil.listeners.WeevilDebuggerListener
 import com.bukowiecki.weevil.services.WeevilDebuggerService
 import com.bukowiecki.weevil.shell.util.ShellTabUtil
+import com.bukowiecki.weevil.shell.xdebugger.ShellXValueWrapper
 import com.bukowiecki.weevil.utils.WeevilDebuggerUtils
 import com.bukowiecki.weevil.xdebugger.WeevilDebuggerRootNode
 import com.intellij.debugger.engine.DebuggerManagerThreadImpl
@@ -46,8 +47,12 @@ import com.intellij.xdebugger.impl.actions.XDebuggerActions
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import com.intellij.xdebugger.impl.ui.tree.XDebuggerTree
 import com.intellij.xdebugger.impl.ui.tree.XDebuggerTreePanel
+import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValuePresentationUtil
 import java.awt.BorderLayout
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
+import java.lang.ref.WeakReference
 import javax.swing.BorderFactory
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -121,7 +126,7 @@ class ShellTab(val project: Project,
         val contentPanel = JBUI.Panels.simplePanel()
         this.myMainPanel.add(contentPanel, BorderLayout.CENTER)
         contentPanel.add(this.myForm.evaluateMainPanel, BorderLayout.CENTER)
-        contentPanel.add(this.myResultPanel, BorderLayout.SOUTH)
+        contentPanel.add(this.myResultPanel, BorderLayout.EAST)
 
         this.myForm.evaluateTextPanel.add(myEditor.component)
 
@@ -135,6 +140,7 @@ class ShellTab(val project: Project,
         this.myHeaderMainPanel.add(myFilePathLabel, BorderLayout.EAST)
 
         installDebuggerListener()
+        installTreeListeners()
     }
 
     fun getExpression(): XExpression {
@@ -240,19 +246,42 @@ class ShellTab(val project: Project,
                 expression.trim()
             }
 
-            val shellEvalHistoryEntry = ShellEvalHistoryEntry(name, result)
+            val shellEvalHistoryEntry = ShellEvalHistoryEntry(name, WeakReference(result))
             myHistory = listOf(shellEvalHistoryEntry) + myHistory
 
-            val root = getTree().root as WeevilDebuggerRootNode
-            root.addChildren(XValueChildrenList.singleton(name, result), false)
-            getTree().revalidate()
-            getTree().isVisible = true
+            val tree = getTree()
+            val root = tree.root as WeevilDebuggerRootNode
+            root.addChildren(
+                XValueChildrenList.singleton(
+                    name,
+                    ShellXValueWrapper(shellEvalHistoryEntry.xValueRef, name)
+                ), false)
+            tree.revalidate()
+            tree.isVisible = true
+        }
+    }
+
+    fun reloadTree() {
+        synchronized(myLock) {
+            val tree = getTree()
+            val root = WeevilDebuggerRootNode(tree)
+            tree.setRoot(root, false)
+            for (entry in myHistory) {
+                val xValue = entry.xValueRef.get()
+                if (xValue != null) {
+                    root.addChildren(XValueChildrenList.singleton(entry.expression, xValue), false)
+                }
+            }
+            tree.revalidate()
+            tree.isVisible = true
         }
     }
 
     fun clearTree() {
-        val tree = getTree()
-        tree.setRoot(WeevilDebuggerRootNode(getTree()), false)
+        synchronized(myLock) {
+            val tree = getTree()
+            tree.setRoot(WeevilDebuggerRootNode(getTree()), false)
+        }
     }
 
     private fun installDebuggerListener() {
@@ -316,6 +345,37 @@ class ShellTab(val project: Project,
 
     private fun getTree(): XDebuggerTree {
         return myTreePanel.tree
+    }
+
+    private fun installTreeListeners() {
+        val tree = getTree()
+        tree.addKeyListener(object : KeyListener {
+
+            override fun keyTyped(e: KeyEvent) { }
+
+            override fun keyPressed(e: KeyEvent) {
+                val keyCode = e.keyCode
+                if (keyCode == KeyEvent.VK_DELETE) {
+                    //handleDelete(e)
+                }
+            }
+
+            override fun keyReleased(e: KeyEvent) { }
+        })
+    }
+
+    private fun handleDelete(e: KeyEvent) {
+        ((e.source as? XDebuggerTree)?.selectionPath?.lastPathComponent as? XValueNodeImpl)?.let { node ->
+            removeHistoryEntry(node)
+            reloadTree()
+        }
+    }
+
+    private fun removeHistoryEntry(node: XValueNodeImpl) {
+        myHistory = myHistory.filter {
+            val xValue = it.xValueRef.get()
+            xValue != null && xValue != node.valueContainer
+        }
     }
 
     companion object {

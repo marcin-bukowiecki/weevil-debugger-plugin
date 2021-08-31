@@ -22,6 +22,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.util.messages.MessageBusConnection
 import com.intellij.util.messages.Topic
 import com.intellij.xdebugger.impl.breakpoints.XBreakpointUtil
+import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.uast.util.ClassSet
 import org.jetbrains.uast.util.classSetOf
 
@@ -39,6 +40,11 @@ class WeevilDebuggerService(project: Project): Disposable {
 
     @Volatile
     var supportedLanguages = setOf<Language>(
+        JavaLanguage.INSTANCE
+    )
+
+    @Volatile
+    var shellSupportedLanguages = setOf<Language>(
         JavaLanguage.INSTANCE
     )
 
@@ -110,5 +116,11 @@ class WeevilDebuggerService(project: Project): Disposable {
     fun findSearcher(language: Language): (() -> BaseCodeFragmentSearcher)? {
         return searchers[language.id]
     }
+
+    fun addShellSupportedLanguage(language: KotlinLanguage) {
+        this.shellSupportedLanguages = this.shellSupportedLanguages + language
+    }
+
+    fun isLanguageSupportedForShell(language: Language) = shellSupportedLanguages.contains(language)
 }
 

@@ -23,6 +23,7 @@ import com.intellij.debugger.engine.JavaValue
 import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.lang.java.JavaLanguage
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.codeStyle.CodeStyleManagerImpl
@@ -128,11 +129,13 @@ object WeevilEvaluateContextProvider {
             returnExceptionName = returnExceptionName
         )
 
-        val generatedCode = CodeGenerator.generateCode(
-            place.project,
-            furtherExpressions,
-            compilationContext
-        )
+        val generatedCode = ApplicationManager.getApplication().runWriteAction<String, Throwable> {
+            return@runWriteAction CodeGenerator.generateCode(
+                place.project,
+                furtherExpressions,
+                compilationContext
+            )
+        }
 
         var finalCode = ""
         finalCode += "Map<Long, Map<Integer, List<List<Object>>>> $eventCollectorName = new ConcurrentHashMap<>();\n"
