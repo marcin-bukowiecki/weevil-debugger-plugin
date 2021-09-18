@@ -49,7 +49,8 @@
         <debugger.sourcePositionProvider
                 implementation="com.bukowiecki.weevil.debugger.engine.WeevilSourcePositionProvider"/>
 
-        <annotator language="JAVA" implementationClass="com.bukowiecki.weevil.annotator.WeevilDebuggerAnnotator"/>
+        <annotator language="JAVA" implementationClass="com.bukowiecki.weevil.annotator.WeevilTrueFalseDebuggerAnnotator"/>
+        <annotator language="JAVA" implementationClass="com.bukowiecki.weevil.annotator.WeevilBinaryOperatorAnnotator"/>
         <annotator language="JAVA" implementationClass="com.bukowiecki.weevil.annotator.WeevilXDebuggerTreeAnnotator"/>
 
         <xdebugger.breakpointType

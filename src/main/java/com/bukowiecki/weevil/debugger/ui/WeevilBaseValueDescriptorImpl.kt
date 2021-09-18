@@ -132,3 +132,23 @@ open class ExpressionValueDescriptorImpl(
         return WeevilDebuggerSettings.getInstance(project).showSingleReferences
     }
 }
+
+/**
+ * @author Marcin Bukowiecki
+ */
+open class LogicalBinaryExpressionValueDescriptorImpl(
+    project: Project,
+    simpleName: String,
+    value: Value?,
+    val codeEvent: ExprCaptor,
+    val history: List<Value?>
+) : WeevilNamedValueDescriptorImpl(project, simpleName, value) {
+
+    override fun accept(visitor: WeevilDescriptorVisitor) {
+        visitor.visit(this)
+    }
+
+    override fun isSupported(): Boolean {
+        return true
+    }
+}

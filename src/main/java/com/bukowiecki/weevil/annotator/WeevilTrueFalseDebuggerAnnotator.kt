@@ -12,25 +12,20 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.PsiElement
-import java.awt.Color
-
-val falseColor = Color(83, 43, 46)
-val trueColor = Color(50, 89, 61)
-val activeColor = Color(97, 147, 111)
 
 /**
  * @author Marcin Bukowiecki
  */
-class WeevilDebuggerAnnotator : Annotator {
+class WeevilTrueFalseDebuggerAnnotator : Annotator {
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         val weevilResultService = WeevilResultService.getInstance(element.project)
         val color = when {
             weevilResultService.isTrue(element) -> {
-                trueColor
+                Colors.trueColor
             }
             weevilResultService.isFalse(element) -> {
-                falseColor
+                Colors.falseColor
             }
             else -> {
                 return

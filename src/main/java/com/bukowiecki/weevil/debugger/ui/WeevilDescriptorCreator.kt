@@ -11,6 +11,7 @@ import com.intellij.lang.jvm.types.JvmPrimitiveTypeKind
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiPrimitiveType
+import com.intellij.psi.PsiType
 
 /**
  * @author Marcin Bukowiecki
@@ -86,6 +87,19 @@ class WeevilDescriptorCreator(
         } else {
             val history = values.map { it.value }
             ExpressionValueDescriptorImpl(
+                project,
+                codeEvent.valueName,
+                history.last(),
+                codeEvent,
+                history
+            )
+        }
+    }
+
+    override fun visit(codeEvent: BinaryExprEvent) {
+        if (codeEvent.type == PsiType.BOOLEAN) {
+            val history = values.map { it.value }
+            this.descriptor = LogicalBinaryExpressionValueDescriptorImpl(
                 project,
                 codeEvent.valueName,
                 history.last(),

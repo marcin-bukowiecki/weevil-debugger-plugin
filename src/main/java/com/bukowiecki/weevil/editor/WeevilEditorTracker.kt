@@ -10,6 +10,7 @@ import com.bukowiecki.weevil.services.WeevilDebuggerService
 import com.bukowiecki.weevil.settings.WeevilDebuggerSettings
 import com.intellij.debugger.engine.JavaDebugProcess
 import com.intellij.debugger.engine.JavaStackFrame
+import com.intellij.debugger.engine.evaluation.EvaluateException
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -149,15 +150,19 @@ class WeevilEditorTracker constructor(
         forLabel@
         for (usedFile in usedFiles) {
             for (threadRef in threadsToCheck) {
-                for (frame in threadRef.frames()) {
-                    val sourcePosition = DebuggerUtilsEx
-                        .toXSourcePosition(debugProcessImpl.positionManager.getSourcePosition(frame.location()))
-                        ?: continue
+                try {
+                    for (frame in threadRef.frames()) {
+                        val sourcePosition = DebuggerUtilsEx
+                            .toXSourcePosition(debugProcessImpl.positionManager.getSourcePosition(frame.location()))
+                            ?: continue
 
-                    //is used, so skip
-                    if (sourcePosition.file.url == usedFile.url) {
-                        continue@forLabel
+                        //is used, so skip
+                        if (sourcePosition.file.url == usedFile.url) {
+                            continue@forLabel
+                        }
                     }
+                } catch (ex: EvaluateException) {
+                    log.info("Got evaluate exception", ex)
                 }
             }
 
