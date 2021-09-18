@@ -6,8 +6,7 @@
 package com.bukowiecki.weevil.shell
 
 import com.bukowiecki.weevil.actions.shell.*
-import com.bukowiecki.weevil.annotator.activeColor
-import com.bukowiecki.weevil.annotator.falseColor
+import com.bukowiecki.weevil.annotator.Colors
 import com.bukowiecki.weevil.bundle.WeevilDebuggerBundle
 import com.bukowiecki.weevil.debugger.engine.WeevilErrorTreeNode
 import com.bukowiecki.weevil.listeners.WeevilDebuggerListener
@@ -133,7 +132,7 @@ class ShellTab(val project: Project,
         this.myEditor.addComponent(contentPanel, myResultPanel, vertical = false)
 
         this.myActiveLabel = JBLabel(WeevilDebuggerBundle.message("weevil.debugger.shell.status.active"))
-        this.myActiveLabel.foreground = activeColor
+        this.myActiveLabel.foreground = Colors.activeColor
         this.myFilePathLabel = JBLabel("${sourcePosition.file.url} at ${sourcePosition.line + 1}")
 
         this.myHeaderMainPanel.add(myActiveLabel, BorderLayout.CENTER)
@@ -334,12 +333,12 @@ class ShellTab(val project: Project,
 
     private fun markDeprecated() {
         myActiveLabel.text = WeevilDebuggerBundle.message("weevil.debugger.shell.status.deprecated")
-        myActiveLabel.foreground = falseColor
+        myActiveLabel.foreground = Colors.falseColor
     }
 
     private fun markActive() {
         myActiveLabel.text = WeevilDebuggerBundle.message("weevil.debugger.shell.status.active")
-        myActiveLabel.foreground = activeColor
+        myActiveLabel.foreground = Colors.activeColor
         myFilePathLabel.text = "${sourcePosition.file.url} at ${sourcePosition.line + 1}"
     }
 

@@ -159,7 +159,6 @@ class SessionController(
 
     fun showTree() {
         val currentState = myEvalState ?: return
-
         val weevilContext = currentState.weevilContext
         val evalContext = currentState.evalContext
         val selectedExecutionStack: WeevilJavaExecutionStack? = currentState.selectedExecutionStack.get()
@@ -177,7 +176,6 @@ class SessionController(
 
         val children = XValueChildrenList()
         val eventMap = eventsResult.events
-
         var errorToAdd = {  }
 
         for (entry in eventMap.entries) {
