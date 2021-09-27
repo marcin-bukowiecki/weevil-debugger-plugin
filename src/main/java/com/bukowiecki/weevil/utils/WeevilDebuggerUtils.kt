@@ -51,6 +51,7 @@ object WeevilDebuggerUtils {
     private const val listCanonicalPath = "java.util.List"
 
     fun typesSame(left: Value?, right: Value?): Boolean {
+        if (right == null && left == null) return true
         if (right == null || left == null) return false
         return left.type().equals(right.type())
     }

@@ -34,10 +34,10 @@ class ObjectDiffValuePresentation(
     private val valueToCompareWith = (myValueDescriptor as CompareToObjectDiffValueDescriptorImpl).valueToCompareWith
 
     override fun renderValue(renderer: XValueTextRenderer, node: XValueNodeImpl?) {
-        val thisValue = myValueDescriptor.value
+        val thisValue: Value? = myValueDescriptor.value
         assert(
             WeevilDebuggerUtils.typesSame(thisValue, valueToCompareWith)
-        ) { "This: ${thisValue.type()}, to compare with: ${valueToCompareWith?.type()}" }
+        ) { "This: ${thisValue?.type()}, to compare with: ${valueToCompareWith?.type()}" }
 
         val compact = node != null
         val valueText = myValueDescriptor.valueText
@@ -85,7 +85,7 @@ class ObjectDiffValuePresentation(
     }
 
     private fun renderValue(
-        thisValue: Value,
+        thisValue: Value?,
         renderer: XValueTextRenderer,
         valueText: String
     ) {
@@ -95,14 +95,19 @@ class ObjectDiffValuePresentation(
     }
 
     private fun renderStringValue(
-        thisValue: Value,
+        thisValue: Value?,
         renderer: XValueTextRenderer,
         valueText: String
     ) {
+        val stringValue = if (thisValue == null) {
+            ""
+        } else {
+            (thisValue as StringReference).value()
+        }
         val stringReference = valueToCompareWith as StringReference
         val stringReferenceValue = stringReference.value()
         val indexesOfDifferentChars =
-            ObjectDiffUtils.getIndexesOfDifferentChars(stringReferenceValue, (thisValue as StringReference).value())
+            ObjectDiffUtils.getIndexesOfDifferentChars(stringReferenceValue, stringValue)
 
         val declaredField = ReflectionUtil.getDeclaredField(XValueTextRendererImpl::class.java, "myText")
         val myText = declaredField!!.get(renderer) as ColoredTextContainer

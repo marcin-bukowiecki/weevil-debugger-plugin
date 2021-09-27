@@ -40,15 +40,16 @@ public final class ObjectDiffPresentationUtils {
 
         if (thisValue == null && otherValue == null) {
             renderer.renderValue(thisValueText);
+            return;
         }
 
-        if (thisValue == null && otherValue != null) {
+        if (thisValue == null) {
             renderer.renderValue(thisValueText);
             renderer.renderError(WeevilDebuggerBundle.INSTANCE.message("weevil.debugger.objectDiff.differentValue"));
             return;
         }
 
-        if (thisValue != null && otherValue == null) {
+        if (otherValue == null) {
             renderer.renderValue(thisValueText);
             renderer.renderError(WeevilDebuggerBundle.INSTANCE.message("weevil.debugger.objectDiff.differentValue"));
             return;
