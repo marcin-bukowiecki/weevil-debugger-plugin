@@ -26,6 +26,11 @@ open class WeevilJavaValue(
     valueDescriptor,
     evaluationContext,
     nodeManager,
-    contextSet
+    contextSet) {
 
-)
+    override val isPinned: Boolean = false
+
+    override fun canBePinned(): Boolean {
+        return false
+    }
+}

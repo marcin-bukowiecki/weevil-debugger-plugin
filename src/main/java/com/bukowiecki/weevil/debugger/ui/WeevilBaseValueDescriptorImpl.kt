@@ -33,9 +33,7 @@ fun ValueDescriptorImpl.isSupported(): Boolean {
 abstract class WeevilBaseValueDescriptorImpl(project: Project, latestValue: Value?) :
     ValueDescriptorImpl(project, latestValue) {
 
-    open fun accept(visitor: WeevilDescriptorVisitor) {
-
-    }
+    open fun accept(visitor: WeevilDescriptorVisitor) { }
 
     open fun isSupported() = true
 }
