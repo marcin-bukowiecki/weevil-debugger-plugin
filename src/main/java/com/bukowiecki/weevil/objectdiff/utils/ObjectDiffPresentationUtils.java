@@ -19,6 +19,7 @@ import com.sun.jdi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -55,52 +56,52 @@ public final class ObjectDiffPresentationUtils {
             return;
         }
 
-        Set<Integer> diffIndexes = Set.of();
+        DifferentCharsResult diffResult = new DifferentCharsResult(false, Collections.emptySet());
         if (thisValue instanceof PrimitiveValue) {
             if (thisValue instanceof CharValue) {
-                diffIndexes = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
+                diffResult = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
                         ((CharValue) thisValue).charValue(),
                         ((CharValue) otherValue).charValue()
                 );
             }
             else if (thisValue instanceof BooleanValue) {
-                diffIndexes = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
+                diffResult = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
                         ((BooleanValue) thisValue).booleanValue(),
                         ((BooleanValue) otherValue).booleanValue()
                 );
             }
             else if (thisValue instanceof FloatValue) {
-                diffIndexes = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
+                diffResult = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
                         ((FloatValue) thisValue).floatValue(),
                         ((FloatValue) otherValue).floatValue()
                 );
             }
             else if (thisValue instanceof DoubleValue) {
-                diffIndexes = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
+                diffResult = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
                         ((DoubleValue) thisValue).doubleValue(),
                         ((DoubleValue) otherValue).doubleValue()
                 );
             }
             else if (thisValue instanceof ByteValue) {
-                diffIndexes = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
+                diffResult = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
                         ((ByteValue) thisValue).byteValue(),
                         ((ByteValue) otherValue).byteValue()
                 );
             }
             else if (thisValue instanceof ShortValue) {
-                diffIndexes = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
+                diffResult = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
                         ((ShortValue) thisValue).shortValue(),
                         ((ShortValue) otherValue).shortValue()
                 );
             }
             else if (thisValue instanceof IntegerValue) {
-                diffIndexes = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
+                diffResult = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
                         ((IntegerValue) thisValue).intValue(),
                         ((IntegerValue) otherValue).intValue()
                 );
             }
             else if (thisValue instanceof LongValue) {
-                diffIndexes = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
+                diffResult = ObjectDiffUtils.INSTANCE.getIndexesOfDifferentChars(
                         ((LongValue) thisValue).longValue(),
                         ((LongValue) otherValue).longValue()
                 );
@@ -123,7 +124,7 @@ public final class ObjectDiffPresentationUtils {
             return;
         }
 
-        if (diffIndexes.isEmpty()) {
+        if (!diffResult.isDifferent()) {
             renderer.renderValue(thisValueText);
         } else {
             final TextAttributes regularAttributes = SimpleTextAttributes.REGULAR_ATTRIBUTES.toTextAttributes();
@@ -136,7 +137,7 @@ public final class ObjectDiffPresentationUtils {
                     SimpleTextAttributes.fromTextAttributes(diffTextAttributes),
                     -1,
                     null,
-                    diffIndexes
+                    diffResult.getDifferentIndexes()
             );
             renderer.renderError(WeevilDebuggerBundle.INSTANCE.message("weevil.debugger.objectDiff.differentValue"));
         }

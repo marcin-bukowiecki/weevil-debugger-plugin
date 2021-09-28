@@ -5,43 +5,59 @@
 
 package com.bukowiecki.weevil.objectdiff.utils
 
+import com.sun.jdi.ObjectReference
+
 /**
  * @author Marcin Bukowiecki
  */
 object ObjectDiffUtils {
 
-    fun getIndexesOfDifferentChars(toCompareWith: Boolean, given: Boolean): Set<Int> {
+    fun getIndexesOfDifferentChars(given: Boolean, toCompareWith: Boolean): DifferentCharsResult {
         return if (toCompareWith != given) {
-            setOf(0)
+            DifferentCharsResult(true, setOf(0))
         } else {
-            emptySet()
+            DifferentCharsResult(false, emptySet())
         }
     }
 
 
-    fun getIndexesOfDifferentChars(toCompareWith: Char, given: Char): Set<Int> {
+    fun getIndexesOfDifferentChars(given: Char, toCompareWith: Char): DifferentCharsResult {
         return if (toCompareWith != given) {
-            setOf(0)
+            DifferentCharsResult(true, setOf(0))
         } else {
-            emptySet()
+            DifferentCharsResult(false, emptySet())
         }
     }
 
-    fun getIndexesOfDifferentChars(toCompareWith: Number, given: Number): Set<Int> {
-        return getIndexesOfDifferentChars(toCompareWith.toString(), given.toString())
+    fun getIndexesOfDifferentChars(given: Number, toCompareWith: Number): DifferentCharsResult {
+        return getIndexesOfDifferentChars(given.toString(), toCompareWith.toString())
     }
 
-    fun getIndexesOfDifferentChars(toCompareWith: String, given: String): Set<Int> {
+    fun getIndexesOfDifferentChars(given: String, toCompareWith: String): DifferentCharsResult {
         val result = mutableSetOf<Int>()
-        toCompareWith.forEachIndexed { index, c ->
-            if (index > given.length) {
+
+        for (index in given.indices) {
+            if (index > toCompareWith.length - 1) {
                 result.add(index)
             } else {
-                if (given[index] != c) {
+                if (given[index] != toCompareWith[index]) {
                     result.add(index)
                 }
             }
         }
-        return result
+
+        val isDifferent = toCompareWith.length != given.length || result.isNotEmpty()
+
+        return DifferentCharsResult(isDifferent, result)
+    }
+
+    fun checkTypes(objectToCompare: ObjectReference, objectsToCompareWith: List<ObjectReference>): Boolean {
+        val expectedType = objectToCompare.type()
+        return objectsToCompareWith.all { it.type() == expectedType }
     }
 }
+
+/**
+ * @author Marcin Bukowiecki
+ */
+data class DifferentCharsResult(val isDifferent: Boolean, val differentIndexes: Set<Int>)

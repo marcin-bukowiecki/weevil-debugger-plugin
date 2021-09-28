@@ -13,6 +13,7 @@ import com.bukowiecki.weevil.objectdiff.listeners.ReferenceObjectExpandListener
 import com.bukowiecki.weevil.objectdiff.nodes.CompareWithRootNode
 import com.bukowiecki.weevil.objectdiff.nodes.ReferenceObjectRootNode
 import com.bukowiecki.weevil.objectdiff.nodes.XDebuggerTreeWrapper
+import com.bukowiecki.weevil.objectdiff.utils.ObjectDiffUtils
 import com.intellij.debugger.engine.JavaDebugProcess
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.icons.AllIcons
@@ -30,6 +31,7 @@ import java.awt.Dimension
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.SwingConstants
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeWillExpandListener
 
@@ -60,9 +62,20 @@ class ObjectDiffDialog(private val myProject: Project,
         val objectsToCompareWith = diffService.getObjectsToCompareWith()
 
         if (objectToCompare == null || objectsToCompareWith.isEmpty()) {
-            val infoLabel = JLabel()
-            infoLabel.icon = AllIcons.Actions.IntentionBulb
-            infoLabel.text = WeevilDebuggerBundle.message("weevil.debugger.objectDiff.error1")
+            val infoLabel = JLabel(
+                WeevilDebuggerBundle.message("weevil.debugger.objectDiff.error1"),
+                AllIcons.Actions.IntentionBulb,
+                SwingConstants.LEADING
+            )
+            mainPanel.addToTop(infoLabel)
+            myReferenceObjectTree = XDebuggerTreeWrapper(createTreePanel().tree)
+            compareWithTrees = emptyList()
+        } else if (!ObjectDiffUtils.checkTypes(objectToCompare, objectsToCompareWith)) {
+            val infoLabel = JLabel(
+                WeevilDebuggerBundle.message("weevil.debugger.objectDiff.error2", objectToCompare.type().name()),
+                AllIcons.Actions.IntentionBulb,
+                SwingConstants.LEADING
+            )
             mainPanel.addToTop(infoLabel)
             myReferenceObjectTree = XDebuggerTreeWrapper(createTreePanel().tree)
             compareWithTrees = emptyList()
@@ -134,7 +147,6 @@ class ObjectDiffDialog(private val myProject: Project,
                 override fun treeWillCollapse(event: TreeExpansionEvent?) {
                     controller.checkIfCollapseIsAllowed(event)
                 }
-
             })
 
             val children = XValueChildrenList()

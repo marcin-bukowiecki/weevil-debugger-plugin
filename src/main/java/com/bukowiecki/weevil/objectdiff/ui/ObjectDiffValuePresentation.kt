@@ -106,8 +106,7 @@ class ObjectDiffValuePresentation(
         }
         val stringReference = valueToCompareWith as StringReference
         val stringReferenceValue = stringReference.value()
-        val indexesOfDifferentChars =
-            ObjectDiffUtils.getIndexesOfDifferentChars(stringReferenceValue, stringValue)
+        val diffResult = ObjectDiffUtils.getIndexesOfDifferentChars(stringValue, stringReferenceValue)
 
         val declaredField = ReflectionUtil.getDeclaredField(XValueTextRendererImpl::class.java, "myText")
         val myText = declaredField!!.get(renderer) as ColoredTextContainer
@@ -123,11 +122,11 @@ class ObjectDiffValuePresentation(
             SimpleTextAttributes.fromTextAttributes(diffTextAttributes),
             XValueNode.MAX_VALUE_LENGTH,
             "\"",
-            indexesOfDifferentChars
+            diffResult.differentIndexes
         )
         myText.append("\"", attributes)
 
-        if (indexesOfDifferentChars.isNotEmpty()) {
+        if (diffResult.isDifferent) {
             renderer.renderError(WeevilDebuggerBundle.message("weevil.debugger.objectDiff.differentValue"))
         }
     }
