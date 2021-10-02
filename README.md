@@ -3,10 +3,11 @@
 Weevil Debugger is an extension to existing Intellij Java Debugger providing special features:
 
 <ul>
+    <li>Evaluate future code</li>    
+    <li>Object Diff</li>
     <li>Debugger Shell with evaluation history and value inspection</li>
     <li>Automatic closing files which aren't reachable from stack frames during Debug</li>
     <li>Search for Debugger Variables</li>
-    <li>Evaluate future code</li>    
     <li>Recursion breakpoint</li>
     <li>Smart breakpoint setup according to current value</li>
     <li>Show source code path of loaded class</li>

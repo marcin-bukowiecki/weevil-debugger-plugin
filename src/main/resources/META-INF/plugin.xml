@@ -8,8 +8,8 @@
 
     <ul>
         <li>Evaluate future code</li>
-        <li>Object Diff</li>
         <li>Debugger Shell with evaluation history and value inspection</li>
+        <li>Object Diff</li>
         <li>Automatic closing files which aren't reachable from stack frames during Debug</li>
         <li>Search for Debugger Variables</li>
         <li>Recursion breakpoint</li>
