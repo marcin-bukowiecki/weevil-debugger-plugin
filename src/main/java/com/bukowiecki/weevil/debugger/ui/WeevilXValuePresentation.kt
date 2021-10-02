@@ -11,4 +11,4 @@ import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
 /**
  * @author Marcin Bukowiecki
  */
-class WeevilXValuePresentation(valueDescriptorImpl: ValueDescriptorImpl) : JavaValuePresentation(valueDescriptorImpl)
+open class WeevilXValuePresentation(valueDescriptorImpl: ValueDescriptorImpl) : JavaValuePresentation(valueDescriptorImpl)

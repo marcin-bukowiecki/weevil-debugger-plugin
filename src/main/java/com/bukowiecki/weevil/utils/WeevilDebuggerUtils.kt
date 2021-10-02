@@ -36,6 +36,7 @@ import com.intellij.xdebugger.impl.breakpoints.XBreakpointBase
 import com.sun.jdi.LongValue
 import com.sun.jdi.ObjectReference
 import com.sun.jdi.ThreadReference
+import com.sun.jdi.Value
 import org.jetbrains.uast.util.hasClassOf
 
 /**
@@ -48,6 +49,12 @@ object WeevilDebuggerUtils {
     private const val mapCanonicalPath = "java.util.Map"
 
     private const val listCanonicalPath = "java.util.List"
+
+    fun typesSame(left: Value?, right: Value?): Boolean {
+        if (right == null && left == null) return true
+        if (right == null || left == null) return false
+        return left.type().equals(right.type())
+    }
 
     fun getActiveThread(javaExecutionStack: JavaExecutionStack): ThreadReferenceProxyImpl? {
         val declaredField = ReflectionUtil

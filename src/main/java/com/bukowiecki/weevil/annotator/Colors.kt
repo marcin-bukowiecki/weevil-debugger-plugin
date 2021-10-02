@@ -15,4 +15,6 @@ object Colors {
     val falseColor = Color(83, 43, 46)
     val trueColor = Color(50, 89, 61)
     val activeColor = Color(97, 147, 111)
+
+    val diffBackgroundColor = Color(169, 159, 97)
 }

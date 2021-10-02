@@ -33,10 +33,12 @@ import com.intellij.xdebugger.impl.ui.tree.XDebuggerTree
 import com.intellij.xdebugger.impl.ui.tree.XDebuggerTreePanel
 import java.awt.BorderLayout
 import java.awt.Dimension
+import java.util.*
 import javax.swing.BorderFactory
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.tree.TreePath
 
 /**
  * @author Marcin Bukowiecki
@@ -44,7 +46,7 @@ import javax.swing.JPanel
 open class SearchDialog(
     val javaValue: JavaValue,
     val descriptor: WithHistoryDescriptor,
-    private val javaDebugProcess: JavaDebugProcess,
+    private val myJavaDebugProcess: JavaDebugProcess,
     val sourcePosition: XSourcePosition,
     val language: Language,
     markers: XValueMarkers<*, *>
@@ -57,7 +59,7 @@ open class SearchDialog(
     private val myProject: Project = javaValue.project
     private val myTreePanel: XDebuggerTreePanel = XDebuggerTreePanel(
         javaValue.project,
-        javaDebugProcess.editorsProvider,
+        myJavaDebugProcess.editorsProvider,
         getThisDisposable(),
         null,
         XDebuggerActions.VARIABLES_TREE_POPUP_GROUP,
@@ -73,7 +75,6 @@ open class SearchDialog(
         "weevil.debugger.search.info",
         WeevilDebuggerSettings.getInstance(myProject).maxSearchDepth
     ))
-
     val tree: XDebuggerTree
         get() = myTreePanel.tree
 
@@ -109,7 +110,7 @@ open class SearchDialog(
         mySearchInputComponent = SearchCodeFragmentInputComponent(
             mySearchPanel,
             myProject,
-            javaDebugProcess.editorsProvider,
+            myJavaDebugProcess.editorsProvider,
             sourcePosition,
             language
         )
@@ -132,7 +133,7 @@ open class SearchDialog(
         mySearchInputComponent = SearchExpressionInputComponent(
             mySearchPanel,
             myProject,
-            javaDebugProcess.editorsProvider,
+            myJavaDebugProcess.editorsProvider,
             sourcePosition,
             language
         )
@@ -195,7 +196,7 @@ open class SearchDialog(
                 name,
                 valueDescriptor,
                 javaValue.evaluationContext,
-                javaDebugProcess.nodeManager,
+                myJavaDebugProcess.nodeManager,
                 false
             )
             children.add(getNodeName(name, i), createdValue)
@@ -207,14 +208,12 @@ open class SearchDialog(
     }
 
     fun getEvaluator(): JavaDebuggerEvaluator? {
-        return javaDebugProcess.evaluator as? JavaDebuggerEvaluator
+        return myJavaDebugProcess.evaluator as? JavaDebuggerEvaluator
     }
 
     open fun getNodeName(name: String, index: Int): String {
         return name
     }
-
-    private fun getThisDisposable(): SearchDialog = this
 
     fun enableSearchButton() {
         okAction.isEnabled = true
@@ -225,4 +224,7 @@ open class SearchDialog(
         okAction.isEnabled = false
         setOKButtonText(WeevilDebuggerBundle.message("weevil.debugger.searching"))
     }
+
+    private fun getThisDisposable(): SearchDialog = this
+
 }

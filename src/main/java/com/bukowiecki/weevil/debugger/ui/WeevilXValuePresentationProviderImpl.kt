@@ -14,7 +14,7 @@ import org.jdom.Element
 /**
  * @author Marcin Bukowiecki
  */
-class WeevilXValuePresentationProviderImpl : XValuePresentationProvider, Renderer {
+open class WeevilXValuePresentationProviderImpl : XValuePresentationProvider, Renderer {
 
     override fun getPresentation(descriptor: ValueDescriptorImpl): XValuePresentation {
         return WeevilXValuePresentation(descriptor)
