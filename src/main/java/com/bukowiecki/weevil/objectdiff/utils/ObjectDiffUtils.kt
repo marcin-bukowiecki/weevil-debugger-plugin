@@ -20,7 +20,6 @@ object ObjectDiffUtils {
         }
     }
 
-
     fun getIndexesOfDifferentChars(given: Char, toCompareWith: Char): DifferentCharsResult {
         return if (toCompareWith != given) {
             DifferentCharsResult(true, setOf(0))
